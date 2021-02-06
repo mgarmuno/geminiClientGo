@@ -75,10 +75,15 @@ func addMenuButtons(win *gtk.Box) {
 	if err != nil {
 		log.Fatal("Error creating URL input: ", err)
 	}
+	urlInput.SetHExpand(true)
 	urlInput.SetSizeRequest(urlInputWidth, widgetHight)
 
 	sw, err := gtk.ScrolledWindowNew(win.GetFocusHAdjustment(), win.GetFocusVAdjustment())
+	if err != nil {
+		log.Fatal("Error creating scrolled window: ", err)
+	}
 	sw.SetVExpand(true)
+
 	navLblBox, err := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 2)
 	if err != nil {
 		log.Fatal("Error creating page box: ", err)
