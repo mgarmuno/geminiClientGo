@@ -16,7 +16,6 @@ const (
 )
 
 func Request(u string) string {
-	u = formatURL(u)
 	parsed, err := url.Parse(u)
 	conn, err := tls.Dial("tcp", parsed.Host+":1965", &tls.Config{InsecureSkipVerify: true})
 	if err != nil {
@@ -44,14 +43,4 @@ func Request(u string) string {
 		return body
 	}
 	return ""
-}
-
-func formatURL(u string) string {
-	if !strings.HasPrefix(u, geminiPrefix) {
-		u = geminiPrefix + u
-	}
-	if !strings.HasSuffix(u, geminiSufix) {
-		u = u + geminiSufix
-	}
-	return u
 }
