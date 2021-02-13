@@ -10,15 +10,12 @@ import (
 )
 
 const (
-	widgetHight       = 20
-	urlInputWidth     = 500
-	defaultURL        = "gemini://gemini.circumlunar.space/"
-	prefixURL         = "gemini://"
-	sufixURL          = "/"
-	lineBreak         = "\n"
-	headingLevelThree = "<span size=\"15000\"><b>%s</b></span>"
-	headingLevelTwo   = "<span size=\"22000\"><b>%s</b></span>"
-	headingLevelOne   = "<span size=\"30000\"><b>%s</b></span>"
+	widgetHight   = 20
+	urlInputWidth = 500
+	defaultURL    = "gemini://gemini.circumlunar.space/"
+	prefixURL     = "gemini://"
+	sufixURL      = "/"
+	lineBreak     = "\n"
 )
 
 type App struct {
@@ -27,6 +24,13 @@ type App struct {
 	menuBox        gtk.Box
 	scrolledWindow gtk.ScrolledWindow
 	navBox         gtk.Box
+	markupMap      map[int]string
+}
+
+var markupMap = map[int]string{
+	1: "<span size=\"15000\"><b>%s</b></span>",
+	2: "<span size=\"22000\"><b>%s</b></span>",
+	3: "<span size=\"30000\"><b>%s</b></span>",
 }
 
 func CreateApp() {
@@ -110,7 +114,6 @@ func (app *App) addUIComponents() {
 		log.Fatal("Error creating page box: ", err)
 	}
 	navLblBox.SetHExpand(true)
-
 	app.navBox = *navLblBox
 	app.scrolledWindow.Add(&app.navBox)
 
@@ -126,7 +129,6 @@ func (app *App) addUIComponents() {
 		}
 		app.checkURL(url)
 	})
-
 	navButtonBox.Add(back)
 	navButtonBox.Add(ford)
 	navButtonBox.Add(urlInput)
@@ -168,42 +170,28 @@ func (app *App) formatResponse(response string) {
 		if strings.HasPrefix(line, "```") {
 			continue
 		} else if strings.HasPrefix(line, "###") {
-			app.addHeading(line, 3)
+			app.addLabel(line, 3)
 		} else if strings.HasPrefix(line, "##") {
-			app.addHeading(line, 2)
+			app.addLabel(line, 2)
 		} else if strings.HasPrefix(line, "#") {
-			app.addHeading(line, 1)
+			app.addLabel(line, 1)
 		} else {
-			app.addLabel("", line)
+			app.addLabel(line, 0)
 		}
 	}
 }
 
-func (app *App) addHeading(line string, lvl int8) {
-	if lvl == 3 {
-		app.addLabel(headingLevelThree, line)
-	} else if lvl == 2 {
-		app.addLabel(headingLevelTwo, line)
-	} else if lvl == 1 {
-		app.addLabel(headingLevelOne, line)
-	}
-}
-
-func getHeadingFormat(lvl int8) {
-
-}
-
-func (app *App) addLabel(markup, text string) {
+func (app *App) addLabel(text string, markup int) {
 	lbl, err := gtk.LabelNew("")
 	if err != nil {
 		log.Fatal("Error creatign label for page: ", err)
 	}
 	lbl.SetLineWrap(true)
 	lbl.SetWidthChars(30)
-	if markup != "" {
-		lbl.SetMarkup(fmt.Sprintf(markup, text))
-	} else {
+	if markup == 0 {
 		lbl.SetText(text)
+	} else {
+		lbl.SetMarkup(fmt.Sprintf(markupMap[1], text))
 	}
 
 	app.navBox.Add(lbl)
