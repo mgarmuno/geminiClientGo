@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	widgetHight   = 20
-	urlInputWidth = 500
-	defaultURL    = "gemini://gemini.circumlunar.space/"
-	prefixURL     = "gemini://"
-	sufixURL      = "/"
-	lineBreak     = "\n"
+	defaultXAlign float64 = 0.1
+	widgetHight           = 20
+	urlInputWidth         = 500
+	defaultURL            = "gemini://gemini.circumlunar.space/"
+	prefixURL             = "gemini://"
+	sufixURL              = "/"
+	lineBreak             = "\n"
 )
 
 type App struct {
@@ -24,7 +25,6 @@ type App struct {
 	menuBox        gtk.Box
 	scrolledWindow gtk.ScrolledWindow
 	navBox         gtk.Box
-	markupMap      map[int]string
 }
 
 var markupMap = map[int]string{
@@ -113,7 +113,7 @@ func (app *App) addUIComponents() {
 	if err != nil {
 		log.Fatal("Error creating page box: ", err)
 	}
-	navLblBox.SetHExpand(true)
+	navLblBox.SetVExpand(false)
 	app.navBox = *navLblBox
 	app.scrolledWindow.Add(&app.navBox)
 
@@ -187,7 +187,11 @@ func (app *App) addLabel(text string, markup int) {
 		log.Fatal("Error creatign label for page: ", err)
 	}
 	lbl.SetLineWrap(true)
-	lbl.SetWidthChars(30)
+	lbl.SetVExpand(false)
+
+	labAlign := getLabAlign(markup)
+	lbl.SetXAlign(labAlign)
+
 	if markup == 0 {
 		lbl.SetText(text)
 	} else {
@@ -195,4 +199,13 @@ func (app *App) addLabel(text string, markup int) {
 	}
 
 	app.navBox.Add(lbl)
+}
+
+func getLabAlign(markup int) float64 {
+	if markup == 0 {
+		return defaultXAlign
+	}
+
+	fmt.Println(defaultXAlign - (float64(markup) / 100))
+	return defaultXAlign - (float64(markup) / 100)
 }
